@@ -1,0 +1,61 @@
+select 
+sls_ord_num,
+sls_cust_id,
+sls_prd_key,
+case
+when sls_sales is null or sls_price <= 0 or sls_sales != sls_quantity * abs(sls_price) 
+then sls_quantity * ABS(sls_price)
+else sls_sales
+end sls_sales,
+sls_quantity,
+case when sls_price is null or sls_price <= 0
+then sls_sales / nullif(sls_quantity,0)
+else sls_price
+end sls_price,
+case 
+when sls_order_date =0 Or  LEN(sls_order_date) != 8 then null
+else CAST(cast(sls_order_date as varchar)as date)
+end sls_order_date,
+case 
+when sls_ship_date =0 Or  LEN(sls_ship_date) != 8 then null
+else CAST(cast(sls_ship_date as varchar)as date)
+end sls_ship_date,
+case
+when sls_due_date =0 Or  LEN(sls_due_date) != 8 then null
+else CAST(cast(sls_due_date as varchar)as date)
+end sls_due_date
+from BRONZE.crm_sales_details
+--WHERE sls_cust_id NOT IN (SELECT cst_id FROM SILVER.crm_cust_info)
+--WHERE sls_prd_key NOT IN (SELECT prd_key FROM SILVER.crm_prd_info)
+select nullif(sls_due_date,0) as sls_order_date
+from BRONZE.crm_sales_details
+where sls_due_date <= 0 or LEN(sls_due_date) != 8 
+or sls_due_date > 20500101 
+or sls_due_date < 19000101
+
+select sls_quantity,
+case
+when sls_sales is null or sls_price <= 0 or sls_sales != sls_quantity * abs(sls_price) 
+then sls_quantity * ABS(sls_price)
+else sls_sales
+end sls_sales,
+case when sls_price is null or sls_price <= 0
+then sls_sales / nullif(sls_quantity,0)
+else sls_price
+end sls_price
+from BRONZE.crm_sales_details
+
+
+
+where sls_sales != sls_quantity * sls_price or
+sls_sales is null or sls_price is null  or sls_quantity is null 
+or sls_sales <=0 or sls_price <= 0 or sls_quantity <= 0
+order by sls_sales,sls_quantity,sls_price
+
+SELECT CID ,
+bdate,
+GEN
+FROM BRONZE.erp_cust_az12
+where cid like '%aw00011000%'
+
+
